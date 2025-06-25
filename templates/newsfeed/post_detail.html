@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="post-card">
+        <h2>{{ post.title }}</h2>
+        <p>{{ post.content }}</p>
+        <p><strong>Author:</strong> {{ post.author.username }}</p>
+        <p><strong>Posted on:</strong> {{ post.created_at }}</p>
+    </div>
+
+{% if user == post.author %}
+    <a href="{% url 'edit_post' post.id %}">Edit</a><br>
+    <a href="{% url 'delete_post' post.id %}">Delete</a>
+{% endif %}
+
+
+    <div class="comments-section">
+        <h3>Comments</h3>
+        {% for comment in post.comments.all %}
+            <div class="comment-card">
+                <p>{{ comment.content }}</p>
+                <small>— {{ comment.author.username }} | {{ comment.created_at }}</small>
+                {% if user == comment.author %}
+                    <div class="comment-actions">
+                        <a href="{% url 'comment_edit' comment.id %}">Edit</a> |
+                        <a href="{% url 'comment_delete' comment.id %}">Delete</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>No comments yet.</p>
+        {% endfor %}
+    </div>
+
+    <div class="comment-form">
+    <h3>Add a Comment</h3>
+      <form method="POST" action="{% url 'add_comment' post.id %}">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <button type="submit">Add Comment</button>
+</form>  
+    </div>
+{% endblock %}
+
+<div class="comment-list">
+    {% for comment in comments %}
+        <div class="comment">
+            <div class="author">{{ comment.author.username }}</div>
+            <div class="date">{{ comment.created_at }}</div>
+            <div class="content">{{ comment.content }}</div>
+        </div>
+    {% empty %}
+        <p>No comments yet.</p>
+    {% endfor %}
+</div>
+
